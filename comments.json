@@ -1,0 +1,40 @@
+{
+  "comments": [
+    {
+      "id": "e2b4a044-4421-4295-a45c-b3d66761b93e",
+      "photoId": 0,
+      "content": "Incredible!!!",
+      "createdAt": "2023-11-26T16:16:17.651Z"
+    },
+    {
+      "id": "088d66da-93a6-4900-aaa9-fd8f9bec2a4e",
+      "photoId": 0,
+      "content": "Magnificent art",
+      "createdAt": "2023-11-26T16:16:44.299Z"
+    },
+    {
+      "id": "17b3c71b-79fc-4d8e-91bb-f164a35d634b",
+      "photoId": 0,
+      "content": "Magnificent piece of art!",
+      "createdAt": "2023-11-26T16:17:23.476Z"
+    },
+    {
+      "id": "7e72a94b-4ea1-42ae-a989-243e7e71c89a",
+      "photoId": 0,
+      "content": "Nice!",
+      "createdAt": "2023-11-26T17:12:02.410Z"
+    },
+    {
+      "id": "e3982ea1-0d81-4efd-a8f7-744f49bc219f",
+      "photoId": 0,
+      "content": "Great!",
+      "createdAt": "2023-11-26T17:12:41.498Z"
+    },
+    {
+      "id": "ae733ec5-465b-4d89-9969-b676bae209b7",
+      "photoId": 1,
+      "content": "Nice art bro!",
+      "createdAt": "2023-11-26T17:15:47.246Z"
+    }
+  ]
+}

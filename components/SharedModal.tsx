@@ -10,12 +10,13 @@ import {
 } from '@heroicons/react/24/outline'
 import { AnimatePresence, motion, MotionConfig } from 'framer-motion'
 import Image from 'next/image'
-import { useState } from 'react'
+import { FormEvent, useEffect, useState } from 'react'
 import { useSwipeable } from 'react-swipeable'
 import { variants } from '../utils/animationVariants'
 import downloadPhoto from '../utils/downloadPhoto'
 import { range } from '../utils/range'
-import type { ImageProps, SharedModalProps } from '../utils/types'
+import dateFormatter from '../utils/dateFormatter'
+import type { CommentDataType, ImageProps, SharedModalProps } from '../utils/types'
 import Twitter from './Icons/Twitter'
 
 export default function SharedModal({
@@ -29,6 +30,9 @@ export default function SharedModal({
 }: SharedModalProps) {
   const [loaded, setLoaded] = useState(false)
   const [isCommentOpen, setIsCommentOpen] = useState(false)
+  const [comments, setComments] = useState<CommentDataType[]>([])
+  const [inputComment, setInputComment] = useState<string>(undefined)
+  const [loadingPostComment, setLoadingPostComment] = useState<boolean>(false)
 
   let filteredImages = images?.filter((img: ImageProps) =>
     range(index - 15, index + 15).includes(img.id)
@@ -49,6 +53,47 @@ export default function SharedModal({
   })
 
   let currentImage = images ? images[index] : currentPhoto
+
+  const handleSubmitComment = async (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault()
+    setLoadingPostComment(true)
+    try {
+      const response = await fetch('/api/postComment', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          content: inputComment,
+          photoId: index
+        })
+      })
+      const responseData = await response.json()
+      setInputComment('')
+      fetchComments()
+    } catch (err) {
+      console.error(err)
+    } finally {
+      setLoadingPostComment(false)
+    }
+  }
+
+  const fetchComments = async () => {
+    try {
+      const response = await fetch(`/api/getComments?photoId=${index}`)
+      const commentsData = await response.json()
+      setComments(commentsData)
+    } catch (err) {
+      console.error('Error fetching comments', err)
+    }
+  }
+
+  useEffect(() => {
+    fetchComments()
+  }, [index, loadingPostComment])
+
+
+  console.log(inputComment)
 
   return (
     <MotionConfig
@@ -151,7 +196,7 @@ export default function SharedModal({
                 </button>
                 {/* Comments Button */}
                 <button
-                  onClick={() => setIsCommentOpen(true)}
+                  onClick={() => setIsCommentOpen(!isCommentOpen)}
                   className="rounded-full bg-black/50 p-2 text-white/75 backdrop-blur-lg transition hover:bg-black/75 hover:text-white"
                   title="Comments"
                 >
@@ -217,17 +262,35 @@ export default function SharedModal({
             </div>
           )}
           {isCommentOpen && (
-            <div className='absolute w-1/3 h-1/3 bg-gray-200 right-3 top-16 rounded-md flex flex-col justify-between'>
-              <div className='grow flex flex-col w-full bg-gray-300 rounded-t-md'>
-                <div className='flex flex-row bg-white rounded-t-md shadow-sm justify-between px-6 text-black py-3 border-b-[1px] border-gray-300'>
+            <div className='absolute w-1/3 h-1/3 bg-slate-800 shadow-md right-3 top-16 rounded-md flex flex-col justify-between'>
+              <div className='grow flex flex-col h-52 w-full bg-slate-700 rounded-t-md'>
+                <div className='flex flex-row bg-slate-800 rounded-t-md shadow-sm justify-between px-6 text-white py-3 border-b-[1px] border-slate-700'>
                   <h1>Comments</h1>
                   <button onClick={() => setIsCommentOpen(false)}><XMarkIcon className='w-5 h-5' /></button>
                 </div>
-                <div className='flex flex-row grow'></div>
+                <div className='flex flex-col gap-6 grow overflow-x-hidden overflow-y-auto py-4 px-4'>
+                  {
+                    comments.map((comment) => {
+                      return (
+                        <div className='text-gray-200 text-right font-semibold flex flex-col' key={comment.id}>
+                          <span className='bg-slate-600 p-2 rounded-md'>
+                            {comment.content} <br />
+                            <small className='text-xs font-light'>{dateFormatter(comment.createdAt)}</small>
+                          </span>
+                        </div>
+                      )
+                    })
+                  }
+                </div>
               </div>
               <div className='flex flex-row'>
-                <input className='px-6 h-[48px] outline-none bg-transparent grow' placeholder='Write a comment' />
-                <button className='px-5'><PaperAirplaneIcon className='w-5 h-5 text-black' /></button>
+                <form onSubmit={handleSubmitComment}>
+                  <input
+                    onChange={(e) => setInputComment(e.target.value)}
+                    className='px-6 h-[48px] outline-none bg-transparent grow placeholder:text-gray-400 text-gray-200'
+                    placeholder='Write a comment' />
+                  <button type='submit' className='px-5'><PaperAirplaneIcon className='w-5 h-5 text-gray-400' /></button>
+                </form>
               </div>
             </div>
           )}

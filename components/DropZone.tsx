@@ -71,6 +71,45 @@ export default function DropZone() {
         }
     };
 
+    const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const fileList = e.currentTarget.files
+
+        if (fileList && fileList.length > 0) {
+            const file = fileList[0]
+            setFileToUpload(file)
+
+            try {
+                const resizedImage = await resizeImage(file, 1920, 1080)
+
+                const formData = new FormData()
+                formData.append('file', resizedImage)
+
+                const response = await fetch('api/uploadImage', {
+                    method: 'POST',
+                    body: formData
+                })
+
+                if (response.ok) {
+                    const data = await response.json()
+                    router.push('/', undefined, { shallow: true })
+                    setTimeout(() => {
+                        window.location.reload();
+                    }, 25)
+                } else {
+                    console.error('Upload Failed', response.statusText)
+                }
+
+                console.log(resizedImage)
+                setFileToUpload(null)
+                setInDropZone(false)
+            } catch (err) {
+                console.error('Error on Uploading file', err)
+                setFileToUpload(null)
+                setInDropZone(false)
+            }
+        }
+    }
+
     return (
         <>
             <form className="w-full h-full">
@@ -100,7 +139,9 @@ export default function DropZone() {
                         className="w-full h-full absolute opacity-0 hover:cursor-pointer"
                         type="file"
                         id="dropzone-file"
-                        onDrop={handleDrop} />
+                        onDrop={handleDrop}
+                        onChange={handleFileChange}
+                    />
                 </label>
             </form>
         </>

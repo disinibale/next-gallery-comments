@@ -5,6 +5,8 @@ import {
   ChevronLeftIcon,
   ChevronRightIcon,
   XMarkIcon,
+  ChatBubbleOvalLeftEllipsisIcon,
+  PaperAirplaneIcon
 } from '@heroicons/react/24/outline'
 import { AnimatePresence, motion, MotionConfig } from 'framer-motion'
 import Image from 'next/image'
@@ -26,6 +28,7 @@ export default function SharedModal({
   direction,
 }: SharedModalProps) {
   const [loaded, setLoaded] = useState(false)
+  const [isCommentOpen, setIsCommentOpen] = useState(false)
 
   let filteredImages = images?.filter((img: ImageProps) =>
     range(index - 15, index + 15).includes(img.id)
@@ -71,7 +74,6 @@ export default function SharedModal({
                 exit="exit"
                 className="absolute"
               >
-                <div className='absolute text-4xl text-white'>WWWWWWWWW</div>
                 <Image
                   src={`https://res.cloudinary.com/${process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME
                     }/image/upload/c_scale,${navigation ? 'w_1280' : 'w_1920'}/${currentImage.public_id
@@ -86,7 +88,6 @@ export default function SharedModal({
             </AnimatePresence>
           </div>
         </div>
-
         {/* Buttons + bottom nav bar */}
         <div className="absolute inset-0 mx-auto flex max-w-7xl items-center justify-center">
           {/* Buttons */}
@@ -148,6 +149,14 @@ export default function SharedModal({
                 >
                   <ArrowDownTrayIcon className="h-5 w-5" />
                 </button>
+                {/* Comments Button */}
+                <button
+                  onClick={() => setIsCommentOpen(true)}
+                  className="rounded-full bg-black/50 p-2 text-white/75 backdrop-blur-lg transition hover:bg-black/75 hover:text-white"
+                  title="Comments"
+                >
+                  <ChatBubbleOvalLeftEllipsisIcon className="h-5 w-5" />
+                </button>
               </div>
               <div className="absolute top-0 left-0 flex items-center gap-2 p-3 text-white">
                 <button
@@ -205,6 +214,21 @@ export default function SharedModal({
                   ))}
                 </AnimatePresence>
               </motion.div>
+            </div>
+          )}
+          {isCommentOpen && (
+            <div className='absolute w-1/3 h-1/3 bg-gray-200 right-3 top-16 rounded-md flex flex-col justify-between'>
+              <div className='grow flex flex-col w-full bg-gray-300 rounded-t-md'>
+                <div className='flex flex-row bg-white rounded-t-md shadow-sm justify-between px-6 text-black py-3 border-b-[1px] border-gray-300'>
+                  <h1>Comments</h1>
+                  <button onClick={() => setIsCommentOpen(false)}><XMarkIcon className='w-5 h-5' /></button>
+                </div>
+                <div className='flex flex-row grow'></div>
+              </div>
+              <div className='flex flex-row'>
+                <input className='px-6 h-[48px] outline-none bg-transparent grow' placeholder='Write a comment' />
+                <button className='px-5'><PaperAirplaneIcon className='w-5 h-5 text-black' /></button>
+              </div>
             </div>
           )}
         </div>
